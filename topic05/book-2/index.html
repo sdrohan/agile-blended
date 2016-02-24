@@ -1,0 +1,760 @@
+ <!DOCTYPE html>
+ <html>
+   <head>
+
+     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.4/semantic.min.css" type="text/css">
+     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/solarized_light.min.css" rel="stylesheet" />
+
+     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.address/1.6/jquery.address.min.js"></script>
+     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.4/semantic.min.js"></script>
+     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/languages/java.min.js"></script>
+     <script>hljs.initHighlightingOnLoad();</script>
+
+      <style>
+
+
+body 
+{
+  font-family: "Open Sans", "Helvetica", "Helvetica Neue",  "Arial", sans-serif;
+}
+
+figcaption
+{
+  margin-bottom: 20px;
+}
+
+.vertical-align
+{
+  display: flex;
+  align-items: center;
+}
+
+.credits
+{
+  min-height:20px;
+}
+    </style>
+
+  </head>
+
+  <body>
+
+  <div class="ui container">
+<style>
+
+
+code
+{
+  font-family: "Monaco";
+  font-size: 110%;
+}
+
+img
+{
+  padding:1px;
+  border:1px solid black;
+}
+
+h1
+{
+  font-style:italic;
+  font-size:130%;
+  border-bottom: thin solid black;
+}
+h2
+{
+  font-size:110%;
+  border-bottom: thin solid black;
+}
+h3
+{
+  font-size:100%;
+  border-bottom: thin solid black;
+}
+
+</style>
+
+<div class="ui fixed top pointing inverted menu labmenu">
+  <header class="header item">
+    <a href="../index.html">
+      <i class="sitemap icon"></i>
+      SOLID Principles
+    </a>
+  </header>
+  <div class="right tab-menu menu">
+    <a class="active item" data-tab="Lab-10">
+        Lab-10
+    </a>
+      <a class="item" data-tab="01">
+        01
+      </a>
+      <a class="item" data-tab="02">
+        02
+      </a>
+      <a class="item" data-tab="03">
+        03
+      </a>
+      <a class="item" data-tab="04">
+        04
+      </a>
+      <a class="item" data-tab="05">
+        05
+      </a>
+      <a class="item" data-tab="06">
+        06
+      </a>
+      <a class="item" data-tab="07">
+        07
+      </a>
+      <a class="item" data-tab="Exercises">
+        Exercises
+      </a>
+    </div>
+</div>
+
+<br><br>
+
+  <div  class="ui tab segment lab" data-tab="Lab-10">
+    <h1>Objectives</h1>
+<p>Incorporate Activity class into the placemaker service. Extend pacemakerplaytest to exercise the new feature. Using this as a role model, in the exercises introduce Location into the service</p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="01">
+    <h1>Activities</h1>
+<p>We already have a Java version of Activity from an earlier lab:</p>
+<pre><code class="java">package models;
+
+import static com.google.common.base.Objects.toStringHelper;
+import com.google.common.base.Objects;
+
+public class Activity 
+{ 
+  static Long   counter = 0l;
+
+  public Long   id;
+  public String type;
+  public String location;
+  public double distance;
+
+  public Activity()
+  {
+  }
+
+  public Activity(String type, String location, double distance)
+  {
+    this.id        = counter++;
+    this.type      = type;
+    this.location  = location;
+    this.distance  = distance;
+  }
+
+  @Override
+  public String toString()
+  {
+    return toStringHelper(this).addValue(id)
+                               .addValue(type)
+                               .addValue(location)
+                               .addValue(distance)
+                               .toString();
+  }
+
+  @Override
+  public boolean equals(final Object obj)
+  {
+    if (obj instanceof Activity)
+    {
+      final Activity other = (Activity) obj;
+      return Objects.equal(type, other.type) 
+          &amp;&amp; Objects.equal(location,  other.location)
+          &amp;&amp; Objects.equal(distance,  other.distance) ; 
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  @Override  
+  public int hashCode()  
+  {  
+     return Objects.hashCode(this.id, this.type, this.location, this.distance);  
+  } 
+}
+</code></pre>
+
+<p>(The route has been removed for the moment)</p>
+<p>Adapting this to work within our Play App is reasonably straightforward. </p>
+<p>First, remove all references to the counter - our IDs are now going to be managed by the database. Then, bring the JPA annotation <code>@Entity</code>, and have the class inherit from Model, and annotate our id with @GeneratedValue:</p>
+<pre><code class="java">import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import play.db.ebean.Model;
+
+@SuppressWarnings(&quot;serial&quot;)
+@Entity
+public class Activity extends Model
+{
+  @Id
+  @GeneratedValue
+  public Long   id;
+</code></pre>
+
+<p>We also equip the class with a Finder object:</p>
+<pre><code class="java">  public static Activity findById(Long id)
+  {
+    return find.where().eq(&quot;id&quot;, id).findUnique();
+  }
+  public static Model.Finder&lt;String, Activity&gt; find = new Model.Finder&lt;String, Activity&gt;(String.class, Activity.class);
+</code></pre>
+
+<p>These facilitates simple typesafe model queries.</p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="02">
+    <h1>User</h1>
+<p>In our User model, a user has a list of Activities. This has been modeled as a map in and earlier version of User:</p>
+<pre><code class="java">  public Map&lt;Long, Activity&gt; activities = new HashMap&lt;&gt;();
+</code></pre>
+
+<p>We can revert to slightly simpler model in Play - and take advantage of the framework to manage this relationship efficiently. Insert the following into the User class:</p>
+<pre><code class="java">  @OneToMany(cascade=CascadeType.ALL)
+  public List&lt;Activity&gt; activities = new ArrayList&lt;Activity&gt;();
+</code></pre>
+
+<p>The OneToMany annotation will ensure that the generated database will accommodate this relationship. We have implemented it in unidirectional manner - the Users know about the activity instances, but not the other way around (We may wish to revisit this later).</p>
+<p>See </p>
+<ul>
+<li><a href="http://en.wikibooks.org/wiki/Java_Persistence/OneToMany">http://en.wikibooks.org/wiki/Java_Persistence/OneToMany</a></li>
+</ul>
+<p>for a general introduction as to how this relationship is realised in a database.</p>
+<h1>Json Support</h1>
+<p>When we wish to expose aspects of our model, we need Json support. Here is a revised version of the JsonParser to accommodate the Activity class:</p>
+<pre><code class="java">public class JsonParser
+{
+  private static JSONSerializer  userSerializer     = new JSONSerializer().exclude(&quot;class&quot;);
+  private static JSONSerializer  activitySerializer = new JSONSerializer().exclude(&quot;class&quot;);
+
+  public static User renderUser(String json)
+  {
+    return new JSONDeserializer&lt;User&gt;().deserialize(json, User.class); 
+  }
+
+  public static String renderUser(Object obj)
+  {
+    return userSerializer.serialize(obj);
+  }
+
+  public static List&lt;User&gt; renderUsers(String json)
+  {
+    return new JSONDeserializer&lt;ArrayList&lt;User&gt;&gt;().use(&quot;values&quot;, User.class).deserialize(json);
+  }   
+
+  public static Activity renderActivity(String json)
+  {
+    Activity activity = new JSONDeserializer&lt;Activity&gt;().deserialize(json,   Activity.class);
+    return activity;
+  }
+
+  public static String renderActivity(Object obj)
+  {
+    return activitySerializer.serialize(obj);
+  }
+
+  public static  List&lt;Activity&gt; renderActivities (String json)
+  {
+    return new JSONDeserializer&lt;ArrayList&lt;Activity&gt;&gt;().use(&quot;values&quot;, Activity.class).deserialize(json);
+  }  
+}
+</code></pre>
+  </div>
+  <div  class="ui tab segment lab" data-tab="03">
+    <h1>API</h1>
+<p>These are additional API methods that can be appended to PacemakerAPI to support Activity API access:</p>
+<pre><code class="java">  public static Result activities (Long userId)
+  {  
+    User p = User.findById(userId);
+    return ok(renderActivity(p.activities));
+  }
+
+  public static Result createActivity (Long userId)
+  { 
+    User    user      = User.findById(userId);
+    Activity activity = renderActivity(request().body().asJson().toString());  
+
+    user.activities.add(activity);
+    user.save();
+
+    return ok(renderActivity(activity));
+  }
+
+  public static Result activity (Long userId, Long activityId)
+  {  
+    User    user      = User.findById(userId);
+    Activity activity = Activity.findById(activityId);
+
+    if (activity == null)
+    {
+      return notFound();
+    }
+    else
+    {
+      return user.activities.contains(activity)? ok(renderActivity(activity)): badRequest();
+    }
+  }  
+
+  public static Result deleteActivity (Long userId, Long activityId)
+  {  
+    User    user      = User.findById(userId);
+    Activity activity = Activity.findById(activityId);
+    if (activity == null)
+    {
+      return notFound();
+    }
+    else
+    {
+      if (user.activities.contains(activity))
+      {
+        user.activities.remove(activity);
+        activity.delete();
+        user.save();
+        return ok();
+      }
+      else
+      {
+        return badRequest();
+      }
+
+    }
+  }  
+
+  public static Result updateActivity (Long userId, Long activityId)
+  {
+    User    user      = User.findById(userId);
+    Activity activity = Activity.findById(activityId);
+    if (activity == null)
+    {
+      return notFound();
+    }
+    else
+    {
+      if (user.activities.contains(activity))
+      {
+        Activity updatedActivity = renderActivity(request().body().asJson().toString());
+        activity.distance = updatedActivity.distance;
+        activity.location = updatedActivity.location;
+        activity.type     = updatedActivity.type;
+
+        activity.save();
+        return ok(renderActivity(updatedActivity));
+      }
+      else
+      {
+        return badRequest();
+      }
+    }
+  }   
+</code></pre>
+
+<p>These features are exposed by additional routes in conf/routes:</p>
+<pre><code>GET     /api/users/:userId/activities              controllers.PacemakerAPI.activities(userId: Long)
+POST    /api/users/:userId/activities              controllers.PacemakerAPI.createActivity(userId: Long)
+
+GET     /api/users/:userId/activities/:activityId  controllers.PacemakerAPI.activity(userId: Long, activityId:Long)
+DELETE  /api/users/:userId/activities/:activityId  controllers.PacemakerAPI.deleteActivity(userId: Long, activityId:Long)
+PUT     /api/users/:userId/activities/:activityId  controllers.PacemakerAPI.updateActivity(userId: Long, activityId:Long)
+</code></pre>
+
+<p>NB: The routes file is compiled - and can generate syntax errors if incorrectly formed. This compilation is not integrated into eclipse, so you will need to run 'compile' in the play console if it is to be checked before running.</p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="04">
+    <h1>pacemakerplaytest - User and JsonParser</h1>
+<p>We can now turn our attention to the pacemakerplaytest - and see if we can exercise these new APIs.</p>
+<p>The test project will need a simpified version of the Activity class:</p>
+<pre><code class="java">package app.models;
+
+import static com.google.common.base.Objects.toStringHelper;
+import com.google.common.base.Objects;
+
+public class Activity
+{
+  public Long   id;
+  public String type;
+  public String location;
+  public double distance;
+
+  public Activity()
+  {
+  }
+
+  public Activity(String type, String location, double distance)
+  {
+    this.type      = type;
+    this.location  = location;
+    this.distance  = distance;
+  }
+
+  @Override
+  public String toString()
+  {
+    return toStringHelper(this).addValue(id)
+                               .addValue(type)
+                               .addValue(location)
+                               .addValue(distance)
+                               .toString();
+  }
+
+  @Override
+  public boolean equals(final Object obj)
+  {
+    if (obj instanceof Activity)
+    {
+      final Activity other = (Activity) obj;
+      return Objects.equal(type, other.type) 
+          &amp;&amp; Objects.equal(location,  other.location)
+          &amp;&amp; Objects.equal(distance,  other.distance) ; 
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  @Override  
+  public int hashCode()  
+  {  
+     return Objects.hashCode(this.id, this.type, this.location, this.distance);  
+  } 
+}
+</code></pre>
+
+<p>... and also the JsonParser Class from the play project. It will be identical, except for the import statements:</p>
+<pre><code class="java">package app.api;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import app.models.Activity;
+import app.models.User;
+import flexjson.JSONDeserializer;
+import flexjson.JSONSerializer;
+
+public class JsonParser
+{
+  private static JSONSerializer  userSerializer     = new JSONSerializer().exclude(&quot;class&quot;);
+  private static JSONSerializer  activitySerializer = new JSONSerializer().exclude(&quot;class&quot;);
+
+  public static User renderUser(String json)
+  {
+    return new JSONDeserializer&lt;User&gt;().deserialize(json, User.class); 
+  }
+
+  public static String renderUser(Object obj)
+  {
+    return userSerializer.serialize(obj);
+  }
+
+  public static List&lt;User&gt; renderUsers(String json)
+  {
+    return new JSONDeserializer&lt;ArrayList&lt;User&gt;&gt;().use(&quot;values&quot;, User.class).deserialize(json);
+  }   
+
+  public static Activity renderActivity(String json)
+  {
+    Activity activity = new JSONDeserializer&lt;Activity&gt;().deserialize(json,   Activity.class);
+    return activity;
+  }
+
+  public static String renderActivity(Object obj)
+  {
+    return activitySerializer.serialize(obj);
+  }
+
+  public static  List&lt;Activity&gt; renderActivities (String json)
+  {
+    return new JSONDeserializer&lt;ArrayList&lt;Activity&gt;&gt;().use(&quot;values&quot;, Activity.class).deserialize(json);
+  }  
+}
+</code></pre>
+
+<p>These two classes should compile without error.</p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="05">
+    <h1>pacemakerplaytest - api</h1>
+<p>The PacemakerAPI class in pacemakerplaytest is already equipped with convenience methods to manage users.
+We can supplement those with activity management methods:</p>
+<pre><code class="java">  public static Activity createActivity(Long userId, String activityJson) throws Exception
+  {
+    String response = Rest.post(&quot;/api/users/&quot; + userId + &quot;/activities&quot;, activityJson);
+    return JsonParser.renderActivity(response);
+  }
+
+  public static Activity createActivity(Long userId, Activity activity) throws Exception
+  {
+    return createActivity(userId, JsonParser.renderActivity(activity));
+  }
+
+  public static Activity getActivity(Long userId, Long activityId) throws Exception
+  {
+    String response = Rest.get(&quot;/api/users/&quot; + userId + &quot;/activities/&quot; + activityId);
+    Activity activity = JsonParser.renderActivity(response);
+    return activity;
+  }
+
+  public static Activity updateActivity(Long userId, Long aid, Activity activity) throws Exception
+  {
+    return updateActivity(userId, aid, JsonParser.renderActivity(activity));
+  }
+
+  public static Activity updateActivity(Long userId, Long aid, String activityJson) throws Exception
+  {
+    String response = Rest.put(&quot;/api/users/&quot; + userId + &quot;/activities/&quot; + aid, activityJson);
+    return JsonParser.renderActivity(response);
+  }
+
+  public static List&lt;Activity&gt; getActivities(Long userId) throws Exception
+  {
+    String response = Rest.get(&quot;/api/users/&quot; + userId + &quot;/activities&quot;);
+    return JsonParser.renderActivities(response);
+  }  
+
+  public static void  deleteActivity(Long userId, Long activityId) throws Exception
+  {  
+    Rest.delete(&quot;/api/users/&quot; + userId + &quot;/activities/&quot; + activityId);
+  } 
+</code></pre>
+
+<p>Look at these carefully - there are a number of variations on each call, some entirely json, some taking Java objects, which call the Json variants.</p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="06">
+    <h1>Fixtures</h1>
+<p>We can supplement our Fixtures with a sample Activity Json object:</p>
+<pre><code class="java">  static String activityJson  = &quot;{\n&quot;
+                                    +  &quot;\&quot;type\&quot;      : \&quot;run\&quot;                 ,\n&quot;
+                                    +  &quot;\&quot;location\&quot;  : \&quot;Dunmore\&quot;             ,\n&quot;
+                                    +  &quot;\&quot;distance\&quot;  : 3                        \n&quot;
+                               + &quot;}&quot;;
+</code></pre>
+  </div>
+  <div  class="ui tab segment lab" data-tab="07">
+    <h1>Activity Tests</h1>
+<p>This is a set of tests to simulate the Activities API:</p>
+<pre><code class="java">package app.test;
+
+import static org.junit.Assert.*;
+import java.util.List;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import app.api.PacemakerAPI;
+import app.api.Rest;
+import app.models.Activity;
+import app.models.User;
+
+public class ActivityTest
+{
+  private User     user;
+  private Activity activity;
+
+  @Before
+  public void setUp() throws Exception
+  {
+    user              = new User (&quot;mark&quot;, &quot;simpson&quot;, &quot;mark@simpson.com&quot;, &quot;secret&quot;);
+    activity          = new Activity (&quot;run&quot;,  &quot;tramore&quot;, 3);
+
+    user = PacemakerAPI.createUser(Fixtures.userJson);
+  }
+
+  @After
+  public void tearDown() throws Exception
+  {
+    Rest.delete(&quot;/api/users&quot;);
+  }
+
+  @Test
+  public void createActivityJson() throws Exception
+  {      
+    Activity activity  = PacemakerAPI.createActivity(user.id, Fixtures.activityJson);
+    Activity getResponse = PacemakerAPI.getActivity(user.id, activity.id);
+
+    assertTrue(activity.equals(getResponse));
+
+    PacemakerAPI.deleteActivity(user.id, activity.id);
+  }
+
+  @Test
+  public void createActivityObj() throws Exception
+  { 
+    Activity createResponse = PacemakerAPI.createActivity(user.id, activity);
+    assertEquals(activity, createResponse);
+
+    Activity getResponse = PacemakerAPI.getActivity(user.id, createResponse.id);
+    assertEquals(activity, getResponse);  
+
+    PacemakerAPI.deleteActivity(user.id, createResponse.id);
+  }
+
+
+  @Test
+  public void updateActivity() throws Exception
+  { 
+    Activity createResponse = PacemakerAPI.createActivity(user.id, activity);
+    assertEquals(activity, createResponse);
+
+    activity.distance = 12;
+    activity.location = &quot;connemara&quot;;
+    Activity updateResponse = PacemakerAPI.updateActivity(user.id, createResponse.id, activity);
+    assertEquals(activity, updateResponse);  
+
+    PacemakerAPI.deleteActivity(user.id, createResponse.id);
+  }
+
+
+  @Test
+  public void getActivities() throws Exception
+  { 
+    Activity createResponse = PacemakerAPI.createActivity(user.id, activity);
+
+    List&lt;Activity&gt; activities = PacemakerAPI.getActivities(user.id);
+    assertEquals(1, activities.size());
+
+    assertEquals(activity, activities.get(0));
+    PacemakerAPI.deleteActivity(user.id, createResponse.id);
+  }
+
+
+  @Test
+  public void getMultipleActivities() throws Exception
+  { 
+    Activity createResponse = PacemakerAPI.createActivity(user.id, activity);
+
+    Activity activity2  = new Activity (&quot;ride&quot;,  &quot;tramore&quot;, 3);
+    Activity createResponse2 = PacemakerAPI.createActivity(user.id, activity2);
+
+    List&lt;Activity&gt; activities = PacemakerAPI.getActivities(user.id);
+    assertEquals(2, activities.size());
+
+    assertEquals(activity, activities.get(0));
+    assertEquals(activity2, activities.get(1));
+    PacemakerAPI.deleteActivity(user.id, createResponse.id);
+    PacemakerAPI.deleteActivity(user.id, createResponse2.id);
+  }
+}
+</code></pre>
+
+<p>They should all pass.  If you are testing your localhost, remember to <strong>play run</strong>, otherwise all tests will fail.</p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="Exercises">
+    <h1>Exercises: Location</h1>
+<p>Using the User/Activity classes as a role model, consider introducing the Location class into the model. This is a revision of the Location class from our console app:</p>
+<pre><code class="java">package models;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+import play.db.ebean.Model;
+
+import com.google.common.base.Objects;
+
+@Entity
+public class Location extends Model
+{
+  @Id
+  @GeneratedValue
+  public Long id;
+
+  public float latitude;
+  public float longitude;
+
+  public Location()
+  {
+  }
+
+  public Location (float latitude, float longitude)
+  {
+    this.latitude = latitude;
+    this.longitude = longitude;
+  }
+
+  @Override
+  public boolean equals(final Object obj)
+  {
+    if (obj instanceof Location)
+    {
+      final Location other = (Location) obj;
+      return Objects.equal(latitude, other.latitude) 
+          &amp;&amp; Objects.equal(longitude, other.longitude);
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  public String toString()
+  {
+    return Objects.toStringHelper(this)
+        .add(&quot;Latitude&quot;, latitude)
+        .add(&quot;Longitude&quot;, longitude).toString();
+  }
+
+</code></pre>
+
+<p>This class should not need further work for the moment.</p>
+<h2>Exercise 1: Activity / Location</h2>
+<p>Introduce a <code>OneToMany</code> relationship from Activity to Location to realise routes from our console app.</p>
+<h2>Exercise 2: JsonParser</h2>
+<p>Extend the JsonParser classe to accommodate the Location class transformation</p>
+<h2>Exercise 3: Routes</h2>
+<p>Agument the routes to facilitate route create/read/update/delete by providing new routes using POST/GET/PUT/DELETE verbs</p>
+<h2>Exercise 4: Tests</h2>
+<p>Introduce new tests into the playpacemakertest class to exercise the new location feature</p>
+  </div>
+<script>
+$('.ui.menu .item')
+  .tab({
+    history: true,
+    historyType: 'hash'
+  })
+;
+</script>
+   </div>
+
+
+
+  <br><br>
+  <div class="ui bottom fixed borderless menu">
+    <div class="ui small item">
+    <p id="footertext">
+    Prepared by  Eamonn de Leastar (edeleastar@wit.ie). Except where otherwise noted, this content is licensed under a
+     <a  href="http://creativecommons.org/licenses/by-nc/4.0/" title="External link to http://creativecommons.org/licenses/by-nc/4.0/"
+       target="_blank">Creative Commons Attribution-NonCommercial 4.0 License
+     </a>
+     </p>
+    </div>
+  </div>    <script>
+
+$(document).ready(function()
+{
+  $("img").addClass ("ui image");
+
+  var images = $(".lab img");
+  jQuery.each(images, function(i)  {
+    if((images[i].alt).length > 0)
+    {
+      var div_img = $(document.createElement("div")).addClass("ui segment");
+      $(images[i]).wrap(div_img);
+      var div_label = $(document.createElement("div")).addClass("ui ribbon teal top attached label");
+      div_label.append(images[i].alt);
+      $(div_label).insertBefore(images[i]);
+    }
+  });
+})    </script>
+
+  </body>
+ </html>

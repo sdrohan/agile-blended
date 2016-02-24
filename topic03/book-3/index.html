@@ -1,0 +1,731 @@
+ <!DOCTYPE html>
+ <html>
+   <head>
+
+     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.4/semantic.min.css" type="text/css">
+     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/solarized_light.min.css" rel="stylesheet" />
+
+     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.address/1.6/jquery.address.min.js"></script>
+     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.4/semantic.min.js"></script>
+     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/languages/java.min.js"></script>
+     <script>hljs.initHighlightingOnLoad();</script>
+
+      <style>
+
+
+body 
+{
+  font-family: "Open Sans", "Helvetica", "Helvetica Neue",  "Arial", sans-serif;
+}
+
+figcaption
+{
+  margin-bottom: 20px;
+}
+
+.vertical-align
+{
+  display: flex;
+  align-items: center;
+}
+
+.credits
+{
+  min-height:20px;
+}
+    </style>
+
+  </head>
+
+  <body>
+
+  <div class="ui container">
+<style>
+
+
+code
+{
+  font-family: "Monaco";
+  font-size: 110%;
+}
+
+img
+{
+  padding:1px;
+  border:1px solid black;
+}
+
+h1
+{
+  font-style:italic;
+  font-size:130%;
+  border-bottom: thin solid black;
+}
+h2
+{
+  font-size:110%;
+  border-bottom: thin solid black;
+}
+h3
+{
+  font-size:100%;
+  border-bottom: thin solid black;
+}
+
+</style>
+
+<div class="ui fixed top pointing inverted menu labmenu">
+  <header class="header item">
+    <a href="../index.html">
+      <i class="sitemap icon"></i>
+      Test Driven Development
+    </a>
+  </header>
+  <div class="right tab-menu menu">
+    <a class="active item" data-tab="Lab-09">
+        Lab-09
+    </a>
+      <a class="item" data-tab="01">
+        01
+      </a>
+      <a class="item" data-tab="02">
+        02
+      </a>
+      <a class="item" data-tab="03">
+        03
+      </a>
+      <a class="item" data-tab="04">
+        04
+      </a>
+      <a class="item" data-tab="05">
+        05
+      </a>
+      <a class="item" data-tab="06">
+        06
+      </a>
+      <a class="item" data-tab="07">
+        07
+      </a>
+      <a class="item" data-tab="Exercises">
+        Exercises
+      </a>
+    </div>
+</div>
+
+<br><br>
+
+  <div  class="ui tab segment lab" data-tab="Lab-09">
+    <h1>Objectives</h1>
+<p>Explore Database evolutions in Play. Build a test project, that communicates with the play service over http. Write some initial tests to verify the User class features</p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="01">
+    <h1>Evolution - Local</h1>
+<p>From last weeks lab you should have a version of pacemakerplay running locally on your localhost. This is the project here:</p>
+<ul>
+<li><a href="archives/pacemakerplay.zip">pacemakerplay.zip</a></li>
+</ul>
+<p>You may also have this running on heroku if you completed the relevant steps from last week. If you did, then you may also have a version of the app that can run locally, but be connected to the remove database (step 09 from the last lab).</p>
+<p>We have set evolutions to true in our application.conf:</p>
+<pre><code>applyEvolutions.default=true
+</code></pre>
+
+<p>This means that, if we change the our Model, the play framework will realise this as the application starts up, and will do two things:</p>
+<ul>
+<li>Generate an SQL script that will 'evolve' the database to accommodate the changed model</li>
+<li>Execute this script as the app is launching.</li>
+</ul>
+<p>Here is our current script - in conf/evolutions/default/1.sql</p>
+<pre><code># --- Created by Ebean DDL
+# To stop Ebean DDL generation, remove this comment and start using Evolutions
+
+# --- !Ups
+
+create table my_user (
+  id                        bigint not null,
+  firstname                 varchar(255),
+  lastname                  varchar(255),
+  email                     varchar(255),
+  password                  varchar(255),
+  constraint pk_my_user primary key (id))
+;
+
+create sequence my_user_seq;
+
+# --- !Downs
+
+SET REFERENTIAL_INTEGRITY FALSE;
+
+drop table if exists my_user;
+
+SET REFERENTIAL_INTEGRITY TRUE;
+
+drop sequence if exists my_user_seq;
+</code></pre>
+
+<p>We will make a small change in User to see this process in action. Edit 'User' class to have a new field:</p>
+<pre><code class="java">  public String nationality;
+</code></pre>
+
+<p>To run the app locally, you need to comment in the local database connection, and comment out the heroku settings:</p>
+<pre><code>#db.default.driver=org.postgresql.Driver
+#db.default.url=${DATABASE_URL}
+
+db.default.driver=org.h2.Driver
+db.default.url=&quot;jdbc:h2:mem:play&quot;
+db.default.user=sa
+db.default.password=&quot;&quot;
+</code></pre>
+
+<p>Run the app locally - just using the run command within the play shell - and browse to the app. Using postman, create a new user and verify that the new field is present.</p>
+<p>Now open 1.sql - and it should have an extra entry in the script:</p>
+<pre><code>  nationality               varchar(255),
+</code></pre>
+
+<p>(You may refresh eclipse before opening)</p>
+<p>Recap what we have just done:</p>
+<ul>
+<li>Revised the model</li>
+<li>Generated an evolution script</li>
+<li>Applied this evolution to the database</li>
+</ul>
+<p>All of this have been triggered just be running the app locally.</p>
+<p>Exit the play shell.</p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="02">
+    <h1>Evolution - Remote</h1>
+<p>In order to deploy our revised application to heroku, we will need to make sure that the generated script is compatible with Postgres, as opposed to the local internal database we are using locally. In addition, we would need to:</p>
+<ul>
+<li>Generate compatible Evolution script compatible with Heroku</li>
+<li>Commit all changes to Git</li>
+<li>Push app to Heroku</li>
+</ul>
+<h2>Generate Compatible Evolution script compatible with Heroku.</h2>
+<p>Using step 09 of last week lab as a guide, run a version of your app locally that is using the heroku database. This will just adjusting your application.conf to look something like this:</p>
+<pre><code>db.default.driver=org.postgresql.Driver
+db.default.url=&quot;jdbc:postgresql://ec2-107-21-222-62.compute-1.amazonaws.com:5432/d5aesl5qn4beho?user=liynenxndfmqqz&amp;password=JpYRkxeLpMV3pItfCID3ZjVIf7&amp;ssl=true&amp;sslfactory=org.postgresql.ssl.NonValidatingFactory&quot;
+#db.default.url=${DATABASE_URL}
+
+#db.default.driver=org.h2.Driver
+#db.default.url=&quot;jdbc:h2:mem:play&quot;
+#db.default.user=sa
+#db.default.password=&quot;&quot;
+</code></pre>
+
+<p>NB: Do not use the connection url above, as this is specific to one database on my account.</p>
+<p>Restart the play shell and run the app - and it should start up successfully - and generate the correct evolution script. Examine this script to see if it makes sense.</p>
+<h2>Commit all changes to Git</h2>
+<p>To get the app ready for deployment, change the database settings back to this:</p>
+<pre><code>db.default.driver=org.postgresql.Driver
+db.default.url=${DATABASE_URL}
+
+#db.default.driver=org.h2.Driver
+#db.default.url=&quot;jdbc:h2:mem:play&quot;
+#db.default.user=sa
+#db.default.password=&quot;&quot;
+</code></pre>
+
+<p>We also have live changes to User.java and the sql script.</p>
+<p>You can use the heroku toolbelt that you downloaded last week to handle your commit and push to Heroku.  Alteratively, you can use eclipse to handle your commit (Git should be built in to your version of eclipse).  The instructions for using eclipse are listed below.</p>
+<p>First, select your project and select 'Team-&gt;Share' form the context menu</p>
+<p><img alt="" src="img/19.png"></p>
+<p>The project is already configured and committed to git (we did this in last weeks lab). By pressing 'finish' we are just picking up the git configuration already established.</p>
+<p>Our workspace will change to look like this:</p>
+<p><img alt="" src="img/20.png"></p>
+<p>There are symbols in front of each icon indicating the status of the file - whether it is committed, changed, deleted etc in git. However, note that the <code>User.java</code> a<code>application.comf</code> and <code>1.sql</code> files have a '&gt;'. This indicates that they has been changed, but not committed. Select your project again and select 'Team-&gt;Commit' - you should see this dialog:</p>
+<p><img alt="" src="img/21.png"></p>
+<p>Enter a suitable message - and commit the changes. (If you see other files in here - particularly ones beginning in '.target', do not select them for committal).</p>
+<h2>Push app to Heroku</h2>
+<p>If you are still running the play console, exit it, bringing you back to your shell.</p>
+<p>Push the new version to heroku:</p>
+<pre><code>git push heroku master
+</code></pre>
+
+<p>Using Postmaster, test the newly deployed app - verify that there is a new field called nationality in the user object.</p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="03">
+    <h1>Testing</h1>
+<p>Create a new Java Project in eclipse called <code>pacemakerplaytest</code>.</p>
+<p>In this project, create an ordinary (not source) folder called <code>lib</code>. Download this archive here:</p>
+<ul>
+<li><a href="archives/lib.zip">libs</a></li>
+</ul>
+<p>Uzip its contents into the lib folder - and add all the jar files to the build path of the project (select them all, right-click and select 'add to build path). </p>
+<p>In the project source folder, create 3 packages called:</p>
+<ul>
+<li>app.api</li>
+<li>app.models</li>
+<li>app.test</li>
+</ul>
+<p>Your project will look something like this:</p>
+<p><img alt="" src="img/00.png"></p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="04">
+    <h1>app.models</h1>
+<p>Bring this version of the User class from pacemakerplay into the models package:</p>
+<h2>User</h2>
+<pre><code class="java">package app.models;
+
+import com.google.common.base.Objects;
+
+public class User
+{
+  public Long   id;
+  public String firstname;
+  public String lastname;
+  public String email;
+  public String password;
+
+  public User()
+  {
+  }
+
+  public User(String firstname, String lastname, String email, String password)
+  {
+    this.firstname = firstname;
+    this.lastname = lastname;
+    this.email = email;
+    this.password = password;
+  }
+
+  public boolean checkPassword(String password)
+  {
+    return this.password.equals(password);
+  }
+
+  public void update (User user)
+  {
+    this.firstname = user.firstname;
+    this.lastname  = user.lastname;
+    this.email     = user.email;
+    this.password  = user.password;
+  }
+
+  public String toString()
+  {
+    return Objects.toStringHelper(this)
+        .add(&quot;Id&quot;, id)
+        .add(&quot;Firstname&quot;, firstname)
+        .add(&quot;Lastname&quot;, lastname)
+        .add(&quot;Email&quot;, email)
+        .add(&quot;Passwrod&quot;, password).toString();
+  }
+
+  @Override
+  public boolean equals(final Object obj)
+  {
+    if (obj instanceof User)
+    {
+      final User other = (User) obj;
+      return Objects.equal(firstname, other.firstname) 
+          &amp;&amp; Objects.equal(lastname, other.lastname)
+          &amp;&amp; Objects.equal(email, other.email);
+    }
+    else
+    {
+      return false;
+    }
+  }
+}
+</code></pre>
+
+<p>It is a little simpler than the Play version - we have removed all JPA references, and also the reference to the Model class. Otherwise it is the same.</p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="05">
+    <h1>app.api</h1>
+<h2>JsonParsers</h2>
+<pre><code class="java">package app.api;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import app.models.User;
+import flexjson.JSONDeserializer;
+import flexjson.JSONSerializer;
+
+public class JsonParser
+{
+  private static JSONSerializer  userSerializer = new JSONSerializer().exclude(&quot;class&quot;);
+
+  public static User renderUser(String json)
+  {
+    return new JSONDeserializer&lt;User&gt;().deserialize(json, User.class); 
+  }
+
+  public static String renderUser(Object obj)
+  {
+    return userSerializer.serialize(obj);
+  }
+
+  public static List&lt;User&gt; renderUsers(String json)
+  {
+    return new JSONDeserializer&lt;ArrayList&lt;User&gt;&gt;().use(&quot;values&quot;, User.class).deserialize(json);
+  }   
+}
+</code></pre>
+
+<p>This class is similar (but not identical to) the JsonParser in the pacemakerplay project. It is very important that both projects (this one and the play one), contain the same version of this class. Copy this one into the pacemakerplay, overwriting the one there, now. (the only difference will be the import statement for User).</p>
+<h2>Rest</h2>
+<p>Now bring this into the same package:</p>
+<pre><code class="java">package app.api;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
+public class Rest
+{
+  private static DefaultHttpClient httpClient = null;
+  private static final String URL = &quot;http://localhost:9000&quot;;
+
+  private static DefaultHttpClient httpClient()
+  {
+    if (httpClient == null)
+    {
+      HttpParams httpParameters = new BasicHttpParams();
+      HttpConnectionParams.setConnectionTimeout(httpParameters, 10000);
+      HttpConnectionParams.setSoTimeout(httpParameters, 10000);
+      httpClient = new DefaultHttpClient(httpParameters);
+    }
+    return httpClient;
+  }
+
+  public static String get(String path) throws Exception
+  {
+    HttpGet getRequest = new HttpGet(URL + path);
+    getRequest.setHeader(&quot;accept&quot;, &quot;application/json&quot;);
+    HttpResponse response = httpClient().execute(getRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+
+  public static String delete(String path) throws Exception
+  {
+    HttpDelete deleteRequest = new HttpDelete(URL + path);
+    HttpResponse response = httpClient().execute(deleteRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+
+  public static String put(String path, String json) throws Exception
+  {
+    HttpPut putRequest = new HttpPut(URL + path);
+    putRequest.setHeader(&quot;Content-type&quot;, &quot;application/json&quot;);
+    putRequest.setHeader(&quot;accept&quot;, &quot;application/json&quot;);
+
+    StringEntity s = new StringEntity(json);
+    s.setContentEncoding(&quot;UTF-8&quot;);
+    s.setContentType(&quot;application/json&quot;);
+    putRequest.setEntity(s);
+
+    HttpResponse response = httpClient().execute(putRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+
+  public static String post(String path, String json) throws Exception
+  {
+    HttpPost putRequest = new HttpPost(URL + path);
+    putRequest.setHeader(&quot;Content-type&quot;, &quot;application/json&quot;);
+    putRequest.setHeader(&quot;accept&quot;, &quot;application/json&quot;);
+
+    StringEntity s = new StringEntity(json);
+    s.setContentEncoding(&quot;UTF-8&quot;);
+    s.setContentType(&quot;application/json&quot;);
+    putRequest.setEntity(s);
+
+    HttpResponse response = httpClient().execute(putRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+}
+</code></pre>
+
+<p>.. and finally this:</p>
+<h2>PacemakerAPI</h2>
+<pre><code class="java">package app.api;
+
+import java.util.List;
+import app.models.User;
+import static app.api.JsonParser.*;
+
+public class PacemakerAPI
+{ 
+  public static List&lt;User&gt; getUsers () throws Exception
+  {
+    String response =  Rest.get(&quot;/api/users&quot;);
+    List&lt;User&gt; userList = renderUsers(response);
+    return userList;
+  }
+
+  public static User createUser(String userJson) throws Exception
+  {
+    String response = Rest.post (&quot;/api/users&quot;, userJson);
+    return renderUser(response);
+  }
+
+  public static User createUser(User user) throws Exception
+  {
+    return createUser(renderUser(user));
+  }
+
+  public static User getUser(Long id) throws Exception
+  {
+    String response = Rest.get (&quot;/api/users/&quot; + id);;
+    User user = renderUser(response);
+    return user;
+  }
+
+  public static void deleteUsers() throws Exception
+  {
+    Rest.delete(&quot;/api/users&quot;);    
+  }
+  public static void deleteUser(Long userId) throws Exception
+  {  
+   Rest.delete(&quot;/api/users/&quot; + userId );
+  }
+
+  public static void updateUser(Long userId, String userJson) throws Exception
+  {
+    Rest.put(&quot;/api/users/&quot; + userId, userJson);
+  }
+
+  public static void updateUser(Long userId, User user) throws Exception
+  {
+    Rest.put(&quot;/api/users/&quot; + userId, renderUser(user));
+  }
+}
+</code></pre>
+
+<p>All classes in this package should compile.</p>
+  </div>
+  <div  class="ui tab segment lab" data-tab="06">
+    <h1>app.test</h1>
+<p>The test fixture is a class centralizing some test data:</p>
+<h2>Fixtures</h2>
+<pre><code class="java">package app.test;
+
+import app.models.User;
+
+public class Fixtures
+{
+
+  static String userJson = &quot;{\n&quot;
+                              +  &quot;\&quot;email\&quot;    : \&quot;jim@simpson.com\&quot; ,\n&quot;
+                              +  &quot;\&quot;firstName\&quot;: \&quot;Jim\&quot;             ,\n&quot;
+                              +  &quot;\&quot;lastName\&quot; : \&quot;Simpson\&quot;         ,\n&quot;
+                              +  &quot;\&quot;password\&quot; : \&quot;secret\&quot;           \n&quot;
+                         + &quot;}&quot;;
+
+
+  static User users[] = { 
+                          new User (&quot;homer&quot;,  &quot;simpson&quot;, &quot;homer@simpson.com&quot;,  &quot;secret&quot;),
+                          new User (&quot;lisa&quot;,   &quot;simpson&quot;, &quot;lisa@simpson.com&quot;,   &quot;secret&quot;),
+                          new User (&quot;maggie&quot;, &quot;simpson&quot;, &quot;maggie@simpson.com&quot;, &quot;secret&quot;),
+                          new User (&quot;bart&quot;,   &quot;simpson&quot;, &quot;bart@simpson.com&quot;,   &quot;secret&quot;),
+                          new User (&quot;marge&quot;,  &quot;simpson&quot;, &quot;marge@simpson.com&quot;,  &quot;secret&quot;),
+                        };
+}
+</code></pre>
+
+<p>And this is the first actual test:</p>
+<h2>UserTest</h2>
+<pre><code class="java">package app.test;
+
+import static org.junit.Assert.*;
+import java.util.List;
+import org.apache.http.client.HttpResponseException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import app.api.PacemakerAPI;
+import app.api.Rest;
+import app.models.User;
+
+public class UserTest
+{
+  static User users[] = 
+  { 
+    new User (&quot;homer&quot;,  &quot;simpson&quot;, &quot;homer@simpson.com&quot;,  &quot;secret&quot;),
+    new User (&quot;lisa&quot;,   &quot;simpson&quot;, &quot;lisa@simpson.com&quot;,   &quot;secret&quot;),
+    new User (&quot;maggie&quot;, &quot;simpson&quot;, &quot;maggie@simpson.com&quot;, &quot;secret&quot;),
+    new User (&quot;bart&quot;,   &quot;simpson&quot;, &quot;bart@simpson.com&quot;,   &quot;secret&quot;),
+    new User (&quot;marge&quot;,  &quot;simpson&quot;, &quot;marge@simpson.com&quot;,  &quot;secret&quot;),
+ };
+
+  User user;
+
+  @Before
+  public void setUp() throws Exception
+  {
+    user = new User (&quot;mark&quot;, &quot;simpson&quot;, &quot;mark@simpson.com&quot;, &quot;secret&quot;);
+    PacemakerAPI.deleteUsers();
+  }
+
+  @After
+  public void tearDown() throws Exception
+  {
+    PacemakerAPI.deleteUsers();
+  }
+
+  @Test
+  public void createUserJson() throws Exception
+  {      
+    User user1 = PacemakerAPI.createUser(Fixtures.userJson);
+    User user2 = PacemakerAPI.getUser(user1.id);
+    assertEquals(user1, user2);
+    PacemakerAPI.deleteUser(user1.id);
+  }
+
+  @Test
+  public void createUserObj() throws Exception
+  {      
+    User user2 = PacemakerAPI.createUser(user);
+
+    assertTrue(user.equals(user2));
+    PacemakerAPI.deleteUser(user2.id);
+  }
+
+  @Test
+  public void createUserObjs() throws Exception
+  {    
+    for (User user : Fixtures.users)
+    {
+      User user2 = PacemakerAPI.createUser(user);
+      user.id = user2.id;
+    }
+
+    List &lt;User&gt; users = PacemakerAPI.getUsers();
+    assertEquals(users.size(), Fixtures.users.length);
+
+    for (User user : Fixtures.users)
+    {
+      PacemakerAPI.deleteUser(user.id);
+    }
+    List &lt;User&gt; users2 = PacemakerAPI.getUsers();
+    assertEquals(0, users2.size());
+  }
+
+  @Test
+  public void updateUser() throws Exception
+  {
+    User user2 = PacemakerAPI.createUser(user);
+    user2.email = &quot;NEWNAME@simpson.com&quot;;
+    PacemakerAPI.updateUser(user2.id, user2);
+
+    User user3 = PacemakerAPI.getUser(user2.id);
+    assertEquals (user3.email, &quot;NEWNAME@simpson.com&quot;);
+    assertEquals (user3.id, user2.id);
+
+    PacemakerAPI.deleteUser(user2.id);
+  }
+
+  @Test
+  public void updateNonExistantUser() throws Exception
+  {
+    try
+    {
+      Rest.put(&quot;/api/users/4000&quot;, Fixtures.userJson);
+      fail (&quot;put error&quot;);
+    }
+    catch(HttpResponseException e)
+    {
+      assertTrue (404 == e.getStatusCode());    
+    }
+  }
+
+  @Test
+  public void deleteeNonExistantUser() throws Exception
+  {
+    try
+    {
+      Rest.delete(&quot;/api/users/4000&quot;);
+      fail (&quot;delete error&quot;);
+    }
+    catch(HttpResponseException e)
+    {
+      assertTrue (404 == e.getStatusCode());    
+    }  
+  }
+}
+</code></pre>
+  </div>
+  <div  class="ui tab segment lab" data-tab="07">
+    <h1>Test</h1>
+<p>The project should be structure something like this now:</p>
+<p><img alt="" src="img/01.png"></p>
+<p>Make sure that pacemakerplay is running, and now attempt to run all of the tests in UserTest</p>
+<p><img alt="" src="img/02.png"></p>
+<p>They should all pass. The first test may fail if the app has only just been launched. However, it should run on subsequent attempts as the database will have been primed.</p>
+<p>These are the two project archives here in case something is not working as expected:</p>
+<ul>
+<li><a href="archives/pacemakerplay.zip">pacemakerplay.zip</a></li>
+<li><a href="archives/pacemakerplaytest.zip">pacemakerplaytest.zip</a></li>
+</ul>
+  </div>
+  <div  class="ui tab segment lab" data-tab="Exercises">
+    <h1>Exercises</h1>
+<h2>Exercise 1:</h2>
+<p>If you have deployed to Heroku - then change the url in the Rest class to your heroku app:</p>
+<pre><code>  private static final String URL = &quot;http://localhost:9000&quot;;
+</code></pre>
+
+<p>Now try running the tests. You man need to bring the server up by navigation to the default url on a browser first.</p>
+<h2>Exercise 2:</h2>
+<p>Consider Activities - and how our service might support them. See if you can figure out a way of incorporating activities into the model on the server + supporting routes.</p>
+<p>Perhaps for your first attempt, the Activities could be very simple (remove date/times), and not related to Users in any way. This might enable to to build some simple test cases.</p>
+<p>Next weeks lab will explore how we can establish that relationship.</p>
+  </div>
+<script>
+$('.ui.menu .item')
+  .tab({
+    history: true,
+    historyType: 'hash'
+  })
+;
+</script>
+   </div>
+
+
+
+  <br><br>
+  <div class="ui bottom fixed borderless menu">
+    <div class="ui small item">
+    <p id="footertext">
+    Prepared by  Eamonn de Leastar (edeleastar@wit.ie). Except where otherwise noted, this content is licensed under a
+     <a  href="http://creativecommons.org/licenses/by-nc/4.0/" title="External link to http://creativecommons.org/licenses/by-nc/4.0/"
+       target="_blank">Creative Commons Attribution-NonCommercial 4.0 License
+     </a>
+     </p>
+    </div>
+  </div>    <script>
+
+$(document).ready(function()
+{
+  $("img").addClass ("ui image");
+
+  var images = $(".lab img");
+  jQuery.each(images, function(i)  {
+    if((images[i].alt).length > 0)
+    {
+      var div_img = $(document.createElement("div")).addClass("ui segment");
+      $(images[i]).wrap(div_img);
+      var div_label = $(document.createElement("div")).addClass("ui ribbon teal top attached label");
+      div_label.append(images[i].alt);
+      $(div_label).insertBefore(images[i]);
+    }
+  });
+})    </script>
+
+  </body>
+ </html>

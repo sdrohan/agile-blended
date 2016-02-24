@@ -1,0 +1,289 @@
+ <!DOCTYPE html>
+ <html>
+   <head>
+
+     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.4/semantic.min.css" type="text/css">
+     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/solarized_light.min.css" rel="stylesheet" />
+
+     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.address/1.6/jquery.address.min.js"></script>
+     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.4/semantic.min.js"></script>
+     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/languages/java.min.js"></script>
+     <script>hljs.initHighlightingOnLoad();</script>
+
+      <style>
+
+
+body 
+{
+  font-family: "Open Sans", "Helvetica", "Helvetica Neue",  "Arial", sans-serif;
+}
+
+figcaption
+{
+  margin-bottom: 20px;
+}
+
+.vertical-align
+{
+  display: flex;
+  align-items: center;
+}
+
+.credits
+{
+  min-height:20px;
+}
+    </style>
+
+  </head>
+
+  <body>
+
+  <div class="ui container">
+  <header class="ui middle aligned center aligned stackable grid segment">
+    <a class="ui blue left corner label">
+      <i class="lab big  icon"></i>
+    </a>
+    <div class="eight wide center aligned column">
+      <h2 class="headder">    Agile Software Development </h2>
+    </div>
+    <div class="one wide column sitemap">
+      <div class="popup" data-content="Top Level Topic View">
+        <a href="index.html"> <i class="big sitemap icon"></i>  topics </a>
+      </div>
+    </div>
+    <div class="one wide column">
+      <div class="popup" data-content="All Presentations">
+        <a href="talkwall.html"> <i class="big film icon"></i>  slides </a>
+      </div>
+    </div>
+    <div class="one wide column">
+      <div class="popup" data-content="All Labs">
+        <a href="labwall.html"> <i class="big lab icon"></i> labs </a>
+      </div>
+    </div>
+    <div class="five wide column">
+      <img class="ui centered medium image" src="http://www.wit.ie/assets/images/wit_crest.png">
+    </div>
+  </header>
+
+<script>
+  $('.popup')
+  .popup()
+;
+</script>
+
+
+<div class="ui four doubling stackable cards">
+      <a class="ui card" href="topic02/book-1/index.html">
+    <div class="content">
+      <div class="right floated meta"> <i class="lab large icon"></i></div>
+      <div class="header"> Lab-01 </div>
+    </div>
+    <div class="ui bordered rounded image">
+      <img src="topic02/book-1/img/main.png">
+    </div>
+    <div class="content">
+      <div class="description">
+         <p>The objective of this lab is to install and configure your development workstation and to bring into focus some of the terms and concepts covered in the opening lecture.</p>
+      </div>
+    </div>
+  </a>
+
+      <a class="ui card" href="topic02/book-2/index.html">
+    <div class="content">
+      <div class="right floated meta"> <i class="lab large icon"></i></div>
+      <div class="header"> Lab-02 </div>
+    </div>
+    <div class="ui bordered rounded image">
+      <img src="topic02/book-2/img/main.png">
+    </div>
+    <div class="content">
+      <div class="description">
+         <p>Evolve the application developed in lab01 into a simple command line app. Incorporate commands for creating, deleting and listing users. Explore List, ArrayList, Map, HashMap in this context and introduce the guava and cliche libraries.</p>
+      </div>
+    </div>
+  </a>
+
+      <a class="ui card" href="topic02/book-3/index.html">
+    <div class="content">
+      <div class="right floated meta"> <i class="lab large icon"></i></div>
+      <div class="header"> Lab-03 </div>
+    </div>
+    <div class="ui bordered rounded image">
+      <img src="topic02/book-3/img/main.png">
+    </div>
+    <div class="content">
+      <div class="description">
+         <p>Extend the pacemaker application to include Activity and Location classes + associated commands. Once these are in place, incorporate a serialization mechanism to enable users &amp; activities to be persisted to a file. We will then try to generalize this mechanism, which will enable us to experiment with alternative serialization formats.</p>
+      </div>
+    </div>
+  </a>
+
+      <a class="ui card" href="topic03/book-1/index.html">
+    <div class="content">
+      <div class="right floated meta"> <i class="lab large icon"></i></div>
+      <div class="header"> Lab-04 </div>
+    </div>
+    <div class="ui bordered rounded image">
+      <img src="topic03/book-1/img/main.png">
+    </div>
+    <div class="content">
+      <div class="description">
+         <p>Equip Pacemaker with JUnit libraries and then introduce a range of tests to verify essential features. Correct issues that arise as a result of the tests, becoming familiar with the fail/pass/refactor/pass cycle. Review the outstanding command set of the application.</p>
+      </div>
+    </div>
+  </a>
+
+      <a class="ui card" href="topic03/book-2/index.html">
+    <div class="content">
+      <div class="right floated meta"> <i class="lab large icon"></i></div>
+      <div class="header"> Lab-05 </div>
+    </div>
+    <div class="ui bordered rounded image">
+      <img src="topic03/book-2/img/main.png">
+    </div>
+    <div class="content">
+      <div class="description">
+         <ul>
+<li>Create a new project to host a version of pacemaker implemented in Xtend</li>
+<li>Build the project + its unit tests</li>
+<li>Explore the generated Java sources</li>
+</ul>
+      </div>
+    </div>
+  </a>
+
+      <a class="ui card" href="topic03/book-3/index.html">
+    <div class="content">
+      <div class="right floated meta"> <i class="lab large icon"></i></div>
+      <div class="header"> Lab-09 </div>
+    </div>
+    <div class="ui bordered rounded image">
+      <img src="topic03/book-3/img/main.png">
+    </div>
+    <div class="content">
+      <div class="description">
+         <p>Explore Database evolutions in Play. Build a test project, that communicates with the play service over http. Write some initial tests to verify the User class features</p>
+      </div>
+    </div>
+  </a>
+
+      <a class="ui card" href="topic03/book-4/index.html">
+    <div class="content">
+      <div class="right floated meta"> <i class="lab large icon"></i></div>
+      <div class="header"> Lab-11 </div>
+    </div>
+    <div class="ui bordered rounded image">
+      <img src="topic03/book-4/img/main.png">
+    </div>
+    <div class="content">
+      <div class="description">
+         <p>Introduce elements of a web UI onto the pacemaker. Rework (in the final archive) the ui into a simple app</p>
+      </div>
+    </div>
+  </a>
+
+      <a class="ui card" href="topic04/book-1/index.html">
+    <div class="content">
+      <div class="right floated meta"> <i class="lab large icon"></i></div>
+      <div class="header"> Lab-06 </div>
+    </div>
+    <div class="ui bordered rounded image">
+      <img src="topic04/book-1/img/main.png">
+    </div>
+    <div class="content">
+      <div class="description">
+         <p>Install and configure maven and then create and and test a single module maven project with several external dependencies. Once this is working, incorporate into Eclipse.</p>
+      </div>
+    </div>
+  </a>
+
+      <a class="ui card" href="topic04/book-2/index.html">
+    <div class="content">
+      <div class="right floated meta"> <i class="lab large icon"></i></div>
+      <div class="header"> Lab-07 </div>
+    </div>
+    <div class="ui bordered rounded image">
+      <img src="topic04/book-2/img/main.png">
+    </div>
+    <div class="content">
+      <div class="description">
+         <p>Build pacemaker-1.0 from source using maven. Reverse engineer to UML and Structure 101. Uses these modeling tools on your own assignment</p>
+      </div>
+    </div>
+  </a>
+
+      <a class="ui card" href="topic05/book-1/index.html">
+    <div class="content">
+      <div class="right floated meta"> <i class="lab large icon"></i></div>
+      <div class="header"> Lab-08 </div>
+    </div>
+    <div class="ui bordered rounded image">
+      <img src="topic05/book-1/img/main.png">
+    </div>
+    <div class="content">
+      <div class="description">
+         <p>Create a new version of pacemaker using the play framework and deploy this to a cloud provided. Perform some simple tests on the local and hosted version</p>
+      </div>
+    </div>
+  </a>
+
+      <a class="ui card" href="topic05/book-2/index.html">
+    <div class="content">
+      <div class="right floated meta"> <i class="lab large icon"></i></div>
+      <div class="header"> Lab-10 </div>
+    </div>
+    <div class="ui bordered rounded image">
+      <img src="topic05/book-2/img/main.png">
+    </div>
+    <div class="content">
+      <div class="description">
+         <p>Incorporate Activity class into the placemaker service. Extend pacemakerplaytest to exercise the new feature. Using this as a role model, in the exercises introduce Location into the service</p>
+      </div>
+    </div>
+  </a>
+
+</div>
+   </div>
+
+
+
+  <br><br>
+  <div class="ui bottom fixed borderless menu">
+    <div class="ui small item">
+    <p id="footertext">
+    Prepared by  Eamonn de Leastar (edeleastar@wit.ie). Except where otherwise noted, this content is licensed under a
+     <a  href="http://creativecommons.org/licenses/by-nc/4.0/" title="External link to http://creativecommons.org/licenses/by-nc/4.0/"
+       target="_blank">Creative Commons Attribution-NonCommercial 4.0 License
+     </a>
+     </p>
+    </div>
+  </div>    <script>
+
+$(document).ready(function()
+{
+  $("img").addClass ("ui image");
+
+  var images = $(".lab img");
+  jQuery.each(images, function(i)  {
+    if((images[i].alt).length > 0)
+    {
+      var div_img = $(document.createElement("div")).addClass("ui segment");
+      $(images[i]).wrap(div_img);
+      var div_label = $(document.createElement("div")).addClass("ui ribbon teal top attached label");
+      div_label.append(images[i].alt);
+      $(div_label).insertBefore(images[i]);
+    }
+  });
+})    </script>
+
+  </body>
+ </html>

@@ -1,0 +1,3 @@
+Programming Languages
+
+The history of programming languages is a facinating and continually evolving discipline. We briefly review alternative 'forces' shaping this evolution, as well as inspecting the programming 'family tree'. We will also walk through an extended example, exploring alternatives expressions of the same programme. This may yield some insights into current programming notations trends.
